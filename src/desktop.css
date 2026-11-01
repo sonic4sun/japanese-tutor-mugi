@@ -1,0 +1,19 @@
+/* 電腦版：視窗夠寬時（> 720px），把手機版畫面放在正中間的直式視窗裡，兩側用模糊的教室背景填滿。
+   手機（≤ 720px 寬）完全不受影響。這個檔案要在 main.tsx 最後才 import，才壓得過各元件自己的 CSS。 */
+@media (min-width: 721px) {
+  :root { --col-w: min(100vw, max(480px, 60vh), 760px); }
+  body { background: transparent; }
+  body::before {
+    content: ''; position: fixed; inset: -40px; z-index: -1; pointer-events: none;
+    background: #0b0b0b url('/backgrounds/classroom.webp') center / cover no-repeat;
+    filter: blur(28px) brightness(0.35) saturate(0.8);
+  }
+  /* 主畫面：固定寬度、置中；contain: layout 讓裡面的 position: fixed（設定／速查面板的遮罩）也被框在這個視窗裡 */
+  .tutor {
+    left: 0; right: 0; margin: 0 auto; width: var(--col-w); contain: layout;
+    box-shadow: 0 0 0 1px #2a2a2a, 0 0 80px rgba(0, 0, 0, 0.7);
+  }
+  /* 角色高度原本用整個視窗寬度（100vw）算，改用視窗欄寬 */
+  .tutor-portrait { height: min(calc(100% - 8px), calc((var(--col-w) - 24px) * var(--hw, 1))); }
+  .pair-banner { left: 50%; right: auto; width: calc(var(--col-w) - 24px); transform: translateX(-50%); }
+}
