@@ -16,6 +16,11 @@ import { fileURLToPath } from 'node:url';
 export const VOICEVOX_PORT = 50021;
 /** the engine's own arguments: fixed, never taken from a request */
 export const VOICEVOX_ARGS = ['--host', '127.0.0.1', '--port', String(VOICEVOX_PORT)] as const;
+/** the arguments used: VOICEVOX_ARGS, plus --use_gpu when VOICEVOX_USE_GPU=1 is set in the shell that starts the dev server
+ * (the DirectML / NVIDIA engine then runs on the graphics card; start-mugi.bat sets it). Fixed values only, never from a request. */
+export function voicevoxArgs(env: NodeJS.ProcessEnv = process.env): readonly string[] {
+  return env.VOICEVOX_USE_GPU === '1' ? [...VOICEVOX_ARGS, '--use_gpu'] : VOICEVOX_ARGS;
+}
 /** a start gives up waiting for /version after this long */
 export const VOICEVOX_START_WAIT_MS = 60_000;
 /** the memory reading (a PowerShell query) is kept this long */
@@ -202,7 +207,7 @@ export function createVoicevoxProcess(deps: VoicevoxProcessDeps) {
       throw new VoicevoxError(409, 'port_busy', `port ${VOICEVOX_PORT} 已被其他程式占用，不是 VOICEVOX，無法啟動`);
     }
     const dir = resolve(exe, '..');
-    const child = deps.spawn(exe, VOICEVOX_ARGS, dir);
+    const child = deps.spawn(exe, voicevoxArgs(), dir);
     child.on('error', (e) => {
       deps.log(`[voicevox] start failed: ${e.message}`);
       starting = false;

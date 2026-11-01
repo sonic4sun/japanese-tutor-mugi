@@ -309,3 +309,12 @@ describe('VOICEVOX engine folder: VOICEVOX_DIR, else <project>/voicevox_engine (
     expect(m.spawns).toHaveLength(0);
   });
 });
+
+describe('VOICEVOX GPU switch', () => {
+  it('adds --use_gpu only when VOICEVOX_USE_GPU=1', async () => {
+    const { voicevoxArgs, VOICEVOX_ARGS } = await import('../../../server/voicevoxProcess.ts');
+    expect(voicevoxArgs({})).toEqual(VOICEVOX_ARGS);
+    expect(voicevoxArgs({ VOICEVOX_USE_GPU: '0' })).toEqual(VOICEVOX_ARGS);
+    expect(voicevoxArgs({ VOICEVOX_USE_GPU: '1' })).toEqual([...VOICEVOX_ARGS, '--use_gpu']);
+  });
+});

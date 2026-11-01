@@ -28,6 +28,8 @@ rem 伺服器已經開著就不重開，直接開網頁
 powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0scripts\wait-port.ps1" -Seconds 1
 if not errorlevel 1 goto open
 
+rem VOICEVOX 用顯示卡（DirectML 版）加速
+set VOICEVOX_USE_GPU=1
 start "Mugi Server - close this window to stop" /min cmd /c npm run dev
 powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0scripts\wait-port.ps1" -Seconds 90
 if errorlevel 1 (
