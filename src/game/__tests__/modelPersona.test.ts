@@ -350,6 +350,6 @@ describe('the model and persona settings (phone)', () => {
 
   it('the status read keeps the default personality text of each role', async () => {
     vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({ ok: true, model: 'claude-haiku-5-5', personas: { Mugi: '元氣' } }), { status: 200 })));
-    expect(await claudeStatus()).toEqual({ ok: true, model: 'claude-haiku-5-5', personas: { Mugi: '元氣' } });
+    expect(await claudeStatus()).toEqual({ ok: true, model: 'claude-haiku-5-5', personas: { Mugi: '元氣' }, deepseek: false });
   });
 });

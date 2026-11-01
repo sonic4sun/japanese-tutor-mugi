@@ -80,7 +80,7 @@ cp .env.example .env.local      # Windows 請用：copy .env.example .env.local
 npm run dev
 ```
 
-在電腦上打開 <http://localhost:3004>。埠號是 3004，而且是固定的（伺服器不會自動換到其他埠）。
+在電腦上打開 <http://127.0.0.1:3004>。埠號是 3004，而且是固定的（伺服器不會自動換到其他埠）。
 
 預設情況下，開發伺服器只監聽這台電腦（`127.0.0.1`）。要用手機連線，最安全的做法是 Tailscale Serve，見[用手機使用](#用手機使用)。若要從其他裝置直接打開 `http://<電腦的位址>:3004`，必須在執行 `npm run dev` 前於 shell 設定 `MUGI_LAN=1`；這會讓同一網段的所有人都能連到伺服器（見[安全性](#安全性)）。
 
@@ -92,8 +92,14 @@ npm run dev
 
 1. 把整個專案資料夾放在電腦上（下載 ZIP 解壓縮，或 `git clone`）。
 2. 對 `install-mugi.bat` 按兩下：它會安裝 Node.js（沒有的話）與套件，並在桌面建立「むぎ 日語家教」捷徑。
-3. 以後按桌面捷徑（或 `start-mugi.bat`）就會啟動伺服器，並用**系統預設瀏覽器**開啟 <http://localhost:3004>。
+3. 以後按桌面捷徑（或 `start-mugi.bat`）就會啟動伺服器，並用**系統預設瀏覽器**開啟 <http://127.0.0.1:3004>。
 4. 要關閉：關掉工作列上最小化的「Mugi Server」視窗，或執行 `stop-mugi.bat`。
+
+## DeepSeek 與加密金鑰（Windows）
+
+- **DeepSeek**：設定 › AI 服務多了 DeepSeek，可以和 Claude、ChatGPT 一起排順序（最多 3 個，出錯自動換下一個）。使用 `deepseek-flash`、關閉思考模式（回得快）。DeepSeek 只有 JSON 模式、沒有嚴格的格式保證，所以格式說明寫在提示裡；回覆空白或餘額不足（402）時自動改用下一個服務。DeepSeek 的費用由 DeepSeek 計費，不算進每日預算上限。
+- **加密金鑰庫**：桌面的「むぎ 設定金鑰」（`set-keys.bat`）把 Claude／DeepSeek 金鑰用 Windows DPAPI 加密，存在 `%USERPROFILE%\.mugi-tutor\keys.json`（專案資料夾外，只有你的 Windows 帳號解得開）。輸入時只顯示 `****`。若 `.env.local` 裡有明文的 Claude 金鑰，它會問你要不要搬進加密庫並清掉明文。伺服器優先讀加密庫，其次才讀 `.env.local`；存完不用重開。
+- **VOICEVOX 用顯示卡**：`start-mugi.bat` 會設定 `VOICEVOX_USE_GPU=1`，引擎以 `--use_gpu` 啟動（DirectML／NVIDIA 版才有效）。
 
 ## AI 服務
 

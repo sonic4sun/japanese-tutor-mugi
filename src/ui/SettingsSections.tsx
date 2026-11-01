@@ -132,7 +132,7 @@ export function ModelSection({ chatModel, helperModel, serverModel, onChange, th
 }
 
 /** the services the settings list, in the order the player keeps them (a service that is off is listed after the ones on) */
-const SERVICE_IDS: ProviderId[] = ['anthropic', 'openai'];
+const SERVICE_IDS: ProviderId[] = ['anthropic', 'openai', 'deepseek'];
 
 /** whether this page is opened on the PC itself (127.0.0.1, localhost or [::1]): the keys and the ChatGPT sign-in are set only there (the server checks the same) */
 export function isLocalPc(): boolean {
@@ -244,8 +244,10 @@ export function CloudKeysSection({ onSaved, localPc = isLocalPc() }: { onSaved?:
  * phone sees only the status). ChatGPT signs in and out with its buttons on the PC only; a phone sees the status and picks the model.
  * `claudeOk` / `chatgpt`: null until read. theme 'dark': the dark sheet.
  */
-export function AiServiceSection({ providers, openaiModel, claudeOk, chatgpt, onChange, onRefresh, onKeysSaved, localPc = isLocalPc(), theme }: {
+export function AiServiceSection({ providers, openaiModel, claudeOk, deepseekOk = null, chatgpt, onChange, onRefresh, onKeysSaved, localPc = isLocalPc(), theme }: {
   providers: ProviderId[]; openaiModel: string; claudeOk: boolean | null; chatgpt: ChatGptStatus | null;
+  /** DeepSeek has its key (the vault or .env.local); null until read */
+  deepseekOk?: boolean | null;
   onChange: (patch: { providers?: ProviderId[]; openaiModel?: string }) => void;
   /** re-reads the ChatGPT status (after a sign-in or sign-out) */
   onRefresh: () => void;
@@ -292,7 +294,8 @@ export function AiServiceSection({ providers, openaiModel, claudeOk, chatgpt, on
     onRefresh();
   };
 
-  const claudeText = claudeOk === null ? '讀取中…' : claudeOk ? '已設定金鑰' : '未設定金鑰（在電腦的 .env.local 填 ANTHROPIC_API_KEY）';
+  const claudeText = claudeOk === null ? '讀取中…' : claudeOk ? '已設定金鑰' : '未設定金鑰（用電腦桌面的「むぎ 設定金鑰」加密保存）';
+  const deepseekText = deepseekOk === null ? '讀取中…' : deepseekOk ? '已設定金鑰（Flash，不思考）' : '未設定金鑰（用電腦桌面的「むぎ 設定金鑰」加密保存）';
   const chatgptText = chatgpt === null ? '讀取中…'
     : !chatgpt.signedIn ? '未登入'
       : chatgpt.planEnabled ? `已登入${chatgpt.email ? `（${chatgpt.email}）` : ''}` : '已登入，但沒有 ChatGPT 方案的使用權，請重新登入';
@@ -311,7 +314,7 @@ export function AiServiceSection({ providers, openaiModel, claudeOk, chatgpt, on
           return (
             <li key={id} className="as-ai-item">
               <div className="as-row">
-                <span>{label}<small>{id === 'anthropic' ? claudeText : chatgptText}</small></span>
+                <span>{label}<small>{id === 'anthropic' ? claudeText : id === 'deepseek' ? deepseekText : chatgptText}</small></span>
                 <label className="as-ai-switch"><span>使用</span>
                   <input type="checkbox" role="switch" aria-label={`${label} 使用`} checked={on} disabled={lastOn}
                     onChange={(e) => toggle(id, e.currentTarget.checked)} /></label>

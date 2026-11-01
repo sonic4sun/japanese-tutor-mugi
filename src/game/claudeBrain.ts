@@ -19,7 +19,7 @@ import { activeCharacter, aiServicesOf, effectivePersona, loadTutor, serviceRead
 import { chatGptReady } from './openaiStatus';
 
 /** `personas`: the default personality text per role (from the server, shown in the 人設 settings) */
-export type ClaudeStatus = { ok: boolean; model: string; personas?: Record<string, string> };
+export type ClaudeStatus = { ok: boolean; model: string; personas?: Record<string, string>; /** DeepSeek has its key */ deepseek?: boolean };
 export type ClaudeSegment = { text: string; lang: 'zh' | 'ja' };
 export type ClaudeContext = ChatContext;
 export type ClaudeReply = {
@@ -70,7 +70,7 @@ async function fetchClaudeStatus(): Promise<ClaudeStatus> {
     const personas = j.personas && typeof j.personas === 'object'
       ? Object.fromEntries(Object.entries(j.personas as Record<string, unknown>).filter((e): e is [string, string] => typeof e[1] === 'string'))
       : undefined;
-    return { ok: j.ok === true, model: typeof j.model === 'string' ? j.model : '', ...(personas ? { personas } : {}) };
+    return { ok: j.ok === true, model: typeof j.model === 'string' ? j.model : '', ...(personas ? { personas } : {}), deepseek: (j as { deepseek?: unknown }).deepseek === true };
   } catch {
     return { ok: false, model: '' };
   }
@@ -520,9 +520,11 @@ export const claudeBrain: ChatBrain = {
   async available() {
     // usable when one of the chosen services can answer: Claude has its key, or ChatGPT is signed in with the plan
     const cfg = loadTutor();
-    const anthropic = cfg.providers.includes('anthropic') && (lastStatus ?? (await claudeStatus())).ok;
+    const status = cfg.providers.includes('anthropic') || cfg.providers.includes('deepseek') ? (lastStatus ?? (await claudeStatus())) : null;
+    const anthropic = cfg.providers.includes('anthropic') && !!status?.ok;
+    const deepseek = cfg.providers.includes('deepseek') && !!status?.deepseek;
     const openai = cfg.providers.includes('openai') && (await chatGptReady());
-    return serviceReady(cfg.providers, { anthropic, openai });
+    return serviceReady(cfg.providers, { anthropic, openai, deepseek });
   },
   async reply(req) {
     const c = await askClaude({

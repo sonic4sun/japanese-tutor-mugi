@@ -149,8 +149,8 @@ export function aiServicesOf(s: TutorSettings): AiServices {
 }
 
 /** whether any of the chosen services can answer now: Claude has its key, or ChatGPT is signed in with the plan */
-export function serviceReady(providers: readonly ProviderId[], ready: { anthropic: boolean; openai: boolean }): boolean {
-  return providers.some((p) => (p === 'anthropic' ? ready.anthropic : ready.openai));
+export function serviceReady(providers: readonly ProviderId[], ready: { anthropic: boolean; openai: boolean; deepseek?: boolean }): boolean {
+  return providers.some((p) => (p === 'anthropic' ? ready.anthropic : p === 'deepseek' ? !!ready.deepseek : ready.openai));
 }
 
 /** the ChatGPT model a player typed or picked: trimmed, at most OPENAI_MODEL_MAX_CHARS characters; anything else is '' */

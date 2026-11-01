@@ -33,10 +33,10 @@ describe('AiServiceSection', () => {
   it('lists the services in the order the player keeps them; a service that is off comes after', () => {
     const r = render(<AiServiceSection providers={['openai', 'anthropic']} openaiModel="" claudeOk chatgpt={SIGNED_IN} onChange={() => {}} onRefresh={() => {}} localPc />);
     expect(r.host.querySelector('h3')?.textContent).toBe('AI 服務');
-    expect(rowLabels(r.host)).toEqual(['ChatGPT', 'Claude']);
+    expect(rowLabels(r.host)).toEqual(['ChatGPT', 'Claude', 'DeepSeek']);
     r.unmount();
     const off = render(<AiServiceSection providers={['anthropic']} openaiModel="" claudeOk chatgpt={SIGNED_OUT} onChange={() => {}} onRefresh={() => {}} localPc />);
-    expect(rowLabels(off.host)).toEqual(['Claude', 'ChatGPT']);
+    expect(rowLabels(off.host)).toEqual(['Claude', 'ChatGPT', 'DeepSeek']);
     off.unmount();
   });
 
@@ -71,7 +71,7 @@ describe('AiServiceSection', () => {
 
   it('the Claude row says whether its key is set', () => {
     const r = render(<AiServiceSection providers={['anthropic']} openaiModel="" claudeOk={false} chatgpt={SIGNED_OUT} onChange={() => {}} onRefresh={() => {}} localPc />);
-    expect(r.host.textContent).toContain('未設定金鑰（在電腦的 .env.local 填 ANTHROPIC_API_KEY）');
+    expect(r.host.textContent).toContain('未設定金鑰（用電腦桌面的「むぎ 設定金鑰」加密保存）');
     r.unmount();
   });
 

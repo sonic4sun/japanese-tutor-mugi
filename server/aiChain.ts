@@ -2,7 +2,7 @@
 // (`providers`), and the server tries them in that order. This module holds the pure parts: the body fields, the rule for
 // which errors move on to the next service, and the one-shot run over a list of services.
 import Anthropic from '@anthropic-ai/sdk';
-import { OPENAI_MODEL_MAX_CHARS, parseProviderList, DEFAULT_PROVIDERS, type ProviderId } from '../src/game/claudeProtocol.ts';
+import { OPENAI_MODEL_MAX_CHARS, PROVIDERS_MAX, PROVIDER_IDS, parseProviderList, DEFAULT_PROVIDERS, type ProviderId } from '../src/game/claudeProtocol.ts';
 import type { LlmProvider } from './llm/provider.ts';
 
 /** a service ready for one request: which one, the model it will use, and the provider that calls it */
@@ -31,7 +31,7 @@ export function parseRouting(v: { providers?: unknown; openaiModel?: unknown }):
   let providers: ProviderId[] = [...DEFAULT_PROVIDERS];
   if (v.providers !== undefined && v.providers !== null) {
     const list = parseProviderList(v.providers);
-    if (!list) throw new RoutingError('providers 需為 1 到 2 個不重複的服務（anthropic、openai）');
+    if (!list) throw new RoutingError(`providers 需為 1 到 ${PROVIDERS_MAX} 個不重複的服務（${PROVIDER_IDS.join('、')}）`);
     providers = list;
   }
   let openaiModel: string | undefined;
@@ -52,7 +52,7 @@ export function routingOf(raw: string): Routing {
 const OPENAI_TRANSIENT = /usage_limit|usage_unavailable|rate_limit|insufficient|quota|overloaded|server_error|invalid_request/i;
 
 /**
- * Whether an error moves the request on to the next service. Yes: a refused or unauthorised request (400, 401, 403, 404),
+ * Whether an error moves the request on to the next service. Yes: a refused or unauthorised request (400, 401, 402, 403, 404),
  * limits and quota (429), server errors (5xx), a time limit, a dropped connection, and the codes that name a limit. No: a
  * caller's abort, and anything else (a reply that is not usable is not the service's fault and is not retried elsewhere).
  */
@@ -61,7 +61,8 @@ export function fallbackWorthy(error: unknown): boolean {
   const e = error as { name?: unknown; status?: unknown; timeout?: unknown; code?: unknown; message?: unknown };
   if (e.name === 'AbortError' || e.name === 'APIUserAbortError' || error instanceof Anthropic.APIUserAbortError) return false;
   if (e.timeout === true || error instanceof Anthropic.APIConnectionError || error instanceof TypeError) return true;
-  if (typeof e.status === 'number') return [400, 401, 403, 404, 429].includes(e.status) || e.status >= 500;
+  // 402: the account has no balance left (DeepSeek), so another service should answer
+  if (typeof e.status === 'number') return [400, 401, 402, 403, 404, 429].includes(e.status) || e.status >= 500;
   const code = typeof e.code === 'string' ? e.code : '';
   const message = typeof e.message === 'string' ? e.message : '';
   return OPENAI_TRANSIENT.test(code) || OPENAI_TRANSIENT.test(message);

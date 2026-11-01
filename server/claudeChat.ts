@@ -16,6 +16,7 @@ import { loadEnv, type Plugin } from 'vite';
 import {
   CHAT_MAX_MESSAGES, CHAT_MAX_MESSAGE_CHARS, CHAT_MODES, CHAT_ROLES, CHAT_TONES, CLAUDE_MODEL_DEFAULT, NAME_MAX_CHARS, PERSONA_MAX_CHARS,
   isChatModelId, nameText, personaText, type ChatContext, type ChatModeId, type ChatRoleId,
+  DEEPSEEK_MODEL,
 } from '../src/game/claudeProtocol.ts';
 import { LOOKUP_MAX_CHARS, parseLookupText, type LookupAnswer } from '../src/game/lookup.ts';
 import { fallbackWorthy, firstServing, parseRouting, routingOf, type Routing, type Service } from './aiChain.ts';
@@ -31,6 +32,8 @@ import { guardApi, guardOptionsFrom } from './apiGuard.ts';
 import { handleSettingsApi } from './settingsRoutes.ts';
 import { PROJECT_ROOT } from './voicevoxProcess.ts';
 import { anthropicProvider, describeAnthropicError } from './llm/anthropicProvider.ts';
+import { deepseekProvider } from './llm/deepseekProvider.ts';
+import { vaultKey } from './secretVault.ts';
 import type { LlmChatRequest, LlmProvider, LlmResult, LlmStream } from './llm/provider.ts';
 import type { BetaMessageStreamParams } from '@anthropic-ai/sdk/resources/beta/messages/messages';
 
@@ -58,16 +61,18 @@ class HttpError extends Error {
 }
 
 /** The settings of one request: the key and model of Anthropic. */
-export type Settings = { key: string; model: string; workspace: string };
+export type Settings = { key: string; model: string; workspace: string; deepseekKey: string };
 
 /** Key and model from .env.local (or the process environment). Read per request, so a new key needs no restart. */
 export function readSettings(root: string, mode: string): Settings {
   const env = loadEnv(mode, root, '');
-  const key = (env.ANTHROPIC_API_KEY ?? '').trim();
+  // the encrypted vault first (desktop 「むぎ 設定金鑰」, server/secretVault.ts), then .env.local / the process environment
+  const key = vaultKey('anthropic') || (env.ANTHROPIC_API_KEY ?? '').trim();
+  const deepseekKey = vaultKey('deepseek') || (env.DEEPSEEK_API_KEY ?? '').trim();
   // keys that aren't scoped to a workspace must name one on every request (anthropic-workspace-id header)
   const workspace = (env.ANTHROPIC_WORKSPACE_ID ?? '').trim();
   const model = (env.ANTHROPIC_MODEL ?? '').trim() || CLAUDE_MODEL_DEFAULT;
-  return { key, model, workspace };
+  return { key, model, workspace, deepseekKey };
 }
 
 // ---------------------------------------------------------------- spending and rate limits
@@ -212,6 +217,11 @@ export async function servicesFor(
       }
       const release = hold(opts.reserveUsd ?? CHAT_RESERVE_USD);
       services.push({ id, model: opts.claudeModel ?? s.model, provider: anthropicProvider(clientFor(s.key, s.workspace)), spend: true, hold: release });
+      continue;
+    }
+    if (id === 'deepseek') {
+      // DeepSeek: its key (vault or .env.local); its cost is billed by DeepSeek and not counted in the daily Claude cap
+      if (s.deepseekKey) services.push({ id, model: DEEPSEEK_MODEL, provider: deepseekProvider(s.deepseekKey), spend: false });
       continue;
     }
     const chatgpt = opts.chatgpt === undefined ? chatGptService() : opts.chatgpt;
@@ -752,7 +762,7 @@ async function handleChat(req: IncomingMessage, res: ServerResponse, root: strin
     const s = readSettings(root, mode);
     // personas: the default personality text per role (only that line, never the whole system prompt)
     const personas = Object.fromEntries(CHAT_ROLES.map((r) => [r, defaultPersona(r)]));
-    return json(res, 200, { ok: !!s.key, model: s.model, personas });
+    return json(res, 200, { ok: !!s.key, model: s.model, personas, deepseek: !!s.deepseekKey });
   }
   if (url.replace(/\/$/, '') === '/judge') return handleJudge(req, res, root, mode);
   if (url.replace(/\/$/, '') === '/fix-tip') return handleFixTip(req, res, root, mode);

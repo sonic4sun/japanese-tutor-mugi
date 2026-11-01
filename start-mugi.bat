@@ -40,5 +40,5 @@ if errorlevel 1 (
 
 :open
 rem 用系統預設瀏覽器開（你的預設是 Comet）
-start "" "http://localhost:3004"
+start "" "http://127.0.0.1:3004"
 exit /b 0

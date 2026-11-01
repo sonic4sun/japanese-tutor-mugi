@@ -35,8 +35,8 @@ if errorlevel 1 (
 )
 
 echo.
-echo 安裝完成！桌面上多了「むぎ 日語家教」捷徑，以後按兩下就會開啟。
-echo 第一次進去請按右上角的 「設定」(齒輪圖示)，填入 Claude 金鑰（或用 ChatGPT 登入）。
+echo 安裝完成！桌面上多了「むぎ 日語家教」和「むぎ 設定金鑰」兩個捷徑。
+echo 金鑰請用桌面的「むぎ 設定金鑰」加密保存（Claude 或 DeepSeek），或在 App 的設定裡用 ChatGPT 登入。
 echo.
 choice /m "現在就開啟嗎"
 if not errorlevel 2 call "%~dp0start-mugi.bat"

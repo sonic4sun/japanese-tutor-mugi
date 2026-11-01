@@ -27,14 +27,16 @@ export function chatModelLabel(id: string): string {
  * The AI services, in the order the server tries them: each AI request carries its own list (`providers`, see
  * server/aiChain.ts). Claude is the API key service; ChatGPT is the signed-in account (server/openai).
  */
-export const PROVIDER_IDS = ['anthropic', 'openai'] as const;
+export const PROVIDER_IDS = ['anthropic', 'openai', 'deepseek'] as const;
 export type ProviderId = (typeof PROVIDER_IDS)[number];
 /** the names on screen (設定 › AI 服務) */
-export const PROVIDER_LABELS: Record<ProviderId, string> = { anthropic: 'Claude', openai: 'ChatGPT' };
+export const PROVIDER_LABELS: Record<ProviderId, string> = { anthropic: 'Claude', openai: 'ChatGPT', deepseek: 'DeepSeek' };
+/** the DeepSeek model every DeepSeek request uses (Flash, thinking off: server/llm/deepseekProvider.ts) */
+export const DEEPSEEK_MODEL = 'deepseek-flash';
 /** a request without a list (and an old save) uses Claude alone, as before */
 export const DEFAULT_PROVIDERS: ProviderId[] = ['anthropic'];
 /** the most services a request may list (every id once) */
-export const PROVIDERS_MAX = 2;
+export const PROVIDERS_MAX = 3;
 /** the longest ChatGPT model id a request may name */
 export const OPENAI_MODEL_MAX_CHARS = 100;
 

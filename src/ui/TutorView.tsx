@@ -206,7 +206,7 @@ export default function TutorView() {
 
   const sttLang = settings.sttLang;
   // a reply can come from any chosen service that is ready (Claude with its key, ChatGPT signed in with the plan)
-  const ready = serviceReady(settings.providers, { anthropic: !!claude?.ok, openai: !!chatgpt?.signedIn && !!chatgpt.planEnabled });
+  const ready = serviceReady(settings.providers, { anthropic: !!claude?.ok, openai: !!chatgpt?.signedIn && !!chatgpt.planEnabled, deepseek: !!claude?.deepseek });
   // her personality as it is sent, and the key that covers it with her name (a change of either starts the request window over)
   const persona = effectivePersona(active);
 
@@ -530,7 +530,7 @@ export default function TutorView() {
           <SoundSection audio={audio} tts={tts} cloud={cloud} volumes={['music', 'voice']} />
           <CloudKeysSection onSaved={keysSaved} />
           <AiServiceSection theme="dark" providers={settings.providers} openaiModel={settings.openaiModel}
-            claudeOk={claude === null ? null : claude.ok} chatgpt={chatgpt} onChange={(patch) => setPrefs(patch)} onRefresh={refreshChatGpt} onKeysSaved={keysSaved} />
+            claudeOk={claude === null ? null : claude.ok} deepseekOk={claude === null ? null : !!claude.deepseek} chatgpt={chatgpt} onChange={(patch) => setPrefs(patch)} onRefresh={refreshChatGpt} onKeysSaved={keysSaved} />
           <BudgetSection />
           <ModelSection theme="dark" chatModel={settings.chatModel} helperModel={settings.helperModel}
             serverModel={claude === null ? null : claude.model} onChange={(patch) => setPrefs(patch)} />
