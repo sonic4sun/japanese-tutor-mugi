@@ -32,6 +32,8 @@ export interface ChatBarProps {
   historyRef?: RefObject<HTMLUListElement | null>;
   /** one line each, shown above the input row when truthy */
   notes?: (string | false | null | undefined)[];
+  /** the listening line (聆聽中…): shown with the voice pill at the top of the screen, not over her reply */
+  topNote?: string;
   /** the 語音對話 status pill (shown when given) */
   pill?: { phase: string; label: string; onStop: () => void };
   /** the 日 / 中 speech-language toggle (shown when given) */
@@ -53,11 +55,16 @@ export function ChatBar(p: ChatBarProps) {
     <div className="chatbar">
       {chatOpen && <ul className="as-history" ref={p.historyRef}>{p.history}</ul>}
       {cap !== undefined && count >= cap - 100 && <div className="as-count" role="status">{count} / {cap} 字</div>}
-      {p.pill && (
-        <div className="as-voice-pill" role="status" aria-live="polite">
-          <span className={`as-voice-dot ${p.pill.phase}`} aria-hidden="true" />
-          <span>{p.pill.label}</span>
-          <button type="button" className="as-voice-stop" aria-label="停止語音對話" onClick={p.pill.onStop}><IconStop /></button>
+      {(p.pill || p.topNote) && (
+        <div className="as-top-status">
+          {p.pill && (
+            <div className="as-voice-pill" role="status" aria-live="polite">
+              <span className={`as-voice-dot ${p.pill.phase}`} aria-hidden="true" />
+              <span>{p.pill.label}</span>
+              <button type="button" className="as-voice-stop" aria-label="停止語音對話" onClick={p.pill.onStop}><IconStop /></button>
+            </div>
+          )}
+          {p.topNote && <div className="as-top-note" role="status">{p.topNote}</div>}
         </div>
       )}
       {p.notes?.filter(Boolean).map((n, i) => <div key={i} className="as-mic-note" role="status">{n}</div>)}

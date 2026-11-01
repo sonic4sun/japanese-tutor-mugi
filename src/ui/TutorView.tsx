@@ -459,8 +459,9 @@ export default function TutorView() {
           </>}
           notes={[
             !ready && claude !== null && '需要 AI 服務：用電腦桌面的「むぎ 設定金鑰」設定 Claude／DeepSeek 金鑰，或在設定的「AI 服務」登入 ChatGPT',
-            note || voice.note || (mic.listening ? `聆聽中…（${localSpeechActive() ? '中文、日文自動判斷' : sttLang === 'ja-JP' ? '日文' : '中文'}）` : ''),
+            note || voice.note,
           ]}
+          topNote={!note && !voice.note && mic.listening ? `聆聽中…（${localSpeechActive() ? '中文、日文自動判斷' : sttLang === 'ja-JP' ? '日文' : '中文'}）` : undefined}
           pill={voice.active ? { phase: voice.phase, label: VOICE_LABEL[voice.phase], onStop: voice.stop } : undefined}
           stt={localSpeechActive() ? undefined : {
             lang: sttLang, title: '語音辨識的語言',

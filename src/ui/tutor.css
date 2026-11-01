@@ -11,7 +11,7 @@
   touch-action: manipulation; overscroll-behavior: none;
 }
 .tutor .as-icon, .tutor .as-input, .tutor .as-topic, .tutor .as-mic, .tutor .as-voice, .tutor .as-stt, .tutor .as-toggle,
-.tutor .as-voice-stop, .tutor .as-voice-pill, .tutor .as-mic-note, .tutor .as-small, .tutor .as-seg button,
+.tutor .as-voice-stop, .tutor .as-voice-pill, .tutor .as-mic-note, .tutor .as-top-note, .tutor .as-small, .tutor .as-seg button,
 .tutor .tip-card, .tutor .tip-target, .tutor .lk-entry {
   background: var(--panel); color: var(--ink); box-shadow: inset 0 0 0 1px var(--line);
 }
@@ -36,6 +36,13 @@
 .tutor-top > .tutor-switcher { grid-column: 2; }
 .tutor-top > .tutor-tools { grid-column: 3; justify-self: end; }
 .tutor-top .as-icon { box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12); }
+/* 語音對話的狀態（聆聽中／思考中／說話中）與「聆聽中」：放在畫面最上方、標題列下面，不擋住她的回話。fixed 在電腦版是相對於
+   置中的視窗（desktop.css 的 contain: layout），在手機是相對於整個畫面 */
+.tutor .as-top-status {
+  position: fixed; z-index: 7; left: 0; right: 0; top: calc(env(safe-area-inset-top) + 58px);
+  padding: 0 12px; pointer-events: none;
+}
+.tutor .as-top-status > * { pointer-events: auto; box-shadow: inset 0 0 0 1px var(--line), 0 2px 10px rgba(0, 0, 0, 0.35); }
 .tutor-title { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; line-height: 1.2; }
 .tutor-title strong { font-size: 17px; text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6); }
 .tutor-title span { font-size: 12px; color: var(--muted); }

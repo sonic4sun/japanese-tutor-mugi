@@ -56,6 +56,19 @@ describe('ChatBar', () => {
     r.unmount();
   });
 
+  it('the voice pill and the listening line sit together in the top status area, apart from the other notes', () => {
+    const r = render(base({ pill: { phase: 'listening', label: '聆聽中…', onStop: () => {} }, topNote: '聆聽中…（中文、日文自動判斷）', notes: ['需要 AI 服務'] }));
+    const top = r.host.querySelector('.as-top-status');
+    expect(top?.querySelector('.as-voice-pill')).toBeTruthy();
+    expect(top?.querySelector('.as-top-note')?.textContent).toBe('聆聽中…（中文、日文自動判斷）');
+    expect(r.host.querySelectorAll('.as-mic-note')).toHaveLength(1);
+    expect(top?.querySelector('.as-mic-note')).toBeNull();
+    r.unmount();
+    const none = render(base({ notes: ['x'] }));
+    expect(none.host.querySelector('.as-top-status')).toBeNull();
+    none.unmount();
+  });
+
   it('submits the text on the send button, and not while the text is empty or sendDisabled', () => {
     const onSubmit = vi.fn();
     const r = render(base({ value: 'こんにちは', onSubmit }));
