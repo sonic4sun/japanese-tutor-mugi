@@ -78,9 +78,17 @@ function trace(ev: string) {
 /** the recent speech events (onstart, onresult, watchdog fired …), oldest first */
 export function speechTrace(): string[] { return traceBuf.slice(); }
 
-/** the recognition constructor of this browser, or null when there is none (iOS Home Screen apps may lack it) */
-export function speechCtor(w: unknown = typeof window === 'undefined' ? undefined : window): SpeechCtor | null {
-  const ww = w as { SpeechRecognition?: SpeechCtor; webkitSpeechRecognition?: SpeechCtor } | undefined;
+// the PC's own recognizer (ui/localSpeech, SenseVoice: Chinese or Japanese found per utterance), when it is installed
+let localCtor: SpeechCtor | null = null;
+/** use the PC's own recognizer instead of the browser's (null = the browser's again) */
+export function setLocalSpeech(ctor: SpeechCtor | null): void { localCtor = ctor; }
+/** the PC's own recognizer is in use: the language needs no choosing */
+export function localSpeechActive(): boolean { return localCtor !== null; }
+
+/** the recognition constructor: the PC's own when installed, else this browser's, or null when there is none (iOS Home Screen apps may lack it) */
+export function speechCtor(w?: unknown): SpeechCtor | null {
+  if (w === undefined && localCtor) return localCtor;
+  const ww = (w === undefined ? (typeof window === 'undefined' ? undefined : window) : w) as { SpeechRecognition?: SpeechCtor; webkitSpeechRecognition?: SpeechCtor } | undefined;
   return ww?.SpeechRecognition ?? ww?.webkitSpeechRecognition ?? null;
 }
 

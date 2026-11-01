@@ -99,6 +99,7 @@ npm run dev
 
 - **DeepSeek**：設定 › AI 服務多了 DeepSeek，可以和 Claude、ChatGPT 一起排順序（最多 3 個，出錯自動換下一個）。使用 `deepseek-flash`、關閉思考模式（回得快）。DeepSeek 只有 JSON 模式、沒有嚴格的格式保證，所以格式說明寫在提示裡；回覆空白或餘額不足（402）時自動改用下一個服務。DeepSeek 的費用由 DeepSeek 計費，不算進每日預算上限。
 - **加密金鑰庫**：桌面的「むぎ 設定金鑰」（`set-keys.bat`）把 Claude／DeepSeek 金鑰用 Windows DPAPI 加密，存在 `%USERPROFILE%\.mugi-tutor\keys.json`（專案資料夾外，只有你的 Windows 帳號解得開）。輸入時只顯示 `****`。若 `.env.local` 裡有明文的 Claude 金鑰，它會問你要不要搬進加密庫並清掉明文。伺服器優先讀加密庫，其次才讀 `.env.local`；存完不用重開。
+- **本機語音辨識（中文、日文自動判斷）**：`scripts/get-stt-model.ps1`（安裝程式會自動執行）下載 SenseVoice 模型到 `stt_model/`。有模型時，語音輸入改由電腦辨識（`server/stt.ts`，sherpa-onnx，CPU），每句自動判斷中文或日文，輸入列的「中／日」按鈕會隱藏；中文結果轉成台灣繁體。聲音只在這台電腦處理。用 2024-07-17 版模型（2025-09-09 版是粵語特化，日文會辨識錯）。
 - **VOICEVOX 用顯示卡**：`start-mugi.bat` 會設定 `VOICEVOX_USE_GPU=1`，引擎以 `--use_gpu` 啟動（DirectML／NVIDIA 版才有效）。
 
 ## AI 服務

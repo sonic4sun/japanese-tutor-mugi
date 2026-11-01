@@ -3,6 +3,7 @@ import { defineConfig } from 'vite'
 import { claudeChatPlugin } from './server/claudeChat.ts'
 import { FS_DENY } from './server/fsDeny.ts'
 import { ttsPlugin } from './server/tts.ts'
+import { sttPlugin } from './server/stt.ts'
 import { usagePlugin } from './server/usage.ts'
 
 // Dev server. By default it listens on 127.0.0.1 only: this PC can reach it, nothing else can.
@@ -20,7 +21,7 @@ const host = LAN ? true : '127.0.0.1';
 const EXTRA_HOSTS = (process.env.MUGI_ALLOWED_HOSTS ?? '').split(',').map((h) => h.trim()).filter(Boolean);
 
 export default defineConfig({
-  plugins: [react(), claudeChatPlugin(), ttsPlugin(), usagePlugin()],
+  plugins: [react(), claudeChatPlugin(), ttsPlugin(), usagePlugin(), sttPlugin()],
   server: {
     host,
     port: 3004,

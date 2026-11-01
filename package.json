@@ -17,8 +17,10 @@
     "@anthropic-ai/sdk": "0.135.0",
     "jose": "6.2.14",
     "kuromoji": "0.1.2",
+    "opencc-js": "1.4.2",
     "react": "19.3.0",
     "react-dom": "19.3.0",
+    "sherpa-onnx-node": "2.0.1",
     "soundtouchjs": "0.3.0"
   },
   "devDependencies": {

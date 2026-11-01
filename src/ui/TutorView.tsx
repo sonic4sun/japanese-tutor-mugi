@@ -36,7 +36,7 @@ import { rubyNodes } from './Furigana';
 import { joinDictation } from './dictation';
 import { useIOSKeyboard } from './useIOSKeyboard';
 import { useDictationScroll } from './useDictationScroll';
-import { speechNoteText, useSpeechInput } from './useSpeechInput';
+import { localSpeechActive, speechNoteText, useSpeechInput } from './useSpeechInput';
 import { ChatBar } from './ChatBar';
 import { IconGear, IconPerson } from './icons';
 import { useVoiceChat, type VoicePhase } from './useVoiceChat';
@@ -458,11 +458,11 @@ export default function TutorView() {
             {streamText && <li className="her">{rubyNodes(streamText)}</li>}
           </>}
           notes={[
-            !ready && claude !== null && '需要 AI 服務：請到設定的「AI 服務」設定 Claude 金鑰，或登入 ChatGPT',
-            note || voice.note || (mic.listening ? `聆聽中…（${sttLang === 'ja-JP' ? '日文' : '中文'}）` : ''),
+            !ready && claude !== null && '需要 AI 服務：用電腦桌面的「むぎ 設定金鑰」設定 Claude／DeepSeek 金鑰，或在設定的「AI 服務」登入 ChatGPT',
+            note || voice.note || (mic.listening ? `聆聽中…（${localSpeechActive() ? '中文、日文自動判斷' : sttLang === 'ja-JP' ? '日文' : '中文'}）` : ''),
           ]}
           pill={voice.active ? { phase: voice.phase, label: VOICE_LABEL[voice.phase], onStop: voice.stop } : undefined}
-          stt={{
+          stt={localSpeechActive() ? undefined : {
             lang: sttLang, title: '語音辨識的語言',
             onToggle: () => { const next = sttLang === 'ja-JP' ? 'zh-TW' : 'ja-JP'; setPrefs({ sttLang: next as TutorSettings['sttLang'] }); },
           }}

@@ -26,6 +26,9 @@ if errorlevel 1 (
 
 if not exist .env.local copy .env.example .env.local >nul
 
+echo 安裝本機語音辨識（中文、日文自動判斷）……
+powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0scripts\get-stt-model.ps1"
+
 echo 建立桌面捷徑……
 powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0scripts\create-shortcut.ps1"
 if errorlevel 1 (
